@@ -43,7 +43,7 @@ void adicionarResultadoTempo(std::string ordem, double tempo){
 
 	//Adicionando resultado no fim do arquivo
 	arquivoCsv << std::fixed;
-	arquivoCsv << std::setprecision(6) << tempo << "; ";
+	arquivoCsv << std::setprecision(6) << tempo << ";" << std::endl;
 
 	//Fechando arquivo de resultados de tempo
 	arquivoCsv.close();
@@ -82,20 +82,63 @@ void criarArquivoMatrizResultante(int** matrizResultado, int ordem, std::string 
 	arquivoCsv.close();
 }
 
-void multiplicaMatrizesSequencial(int** matrizA, int** matrizB, int** matrizResultado){}
+void multiplicaMatrizesSequencial(int** matrizA, int** matrizB, int** matrizResultado, int ordem){
+	for(int i{0}; i < ordem; ++i){
+		for(int j{0}; j < ordem; ++j){
+			int soma = 0;
+			for(int k{0}; k < ordem; ++k){
+				soma += matrizA[i][k] * matrizB[k][j];
+			}
+			matrizResultado[i][j] = soma;
+		}
+	}
+}
 
-void multiplicaMatrizesConcorrente(int** matrizA, int** matrizB, int** matrizResultado){}
+void multiplicaMatrizesConcorrente(int** matrizA, int** matrizB, int** matrizResultado, int ordem){
+
+}
 
 
 int main(int argc, char const *argv[]){
 
 	if(argc != 3){
-		std::cout << "Número de parâmetros errados!" << std::endl;
+		std::cerr << "Número de parâmetros errados!" << std::endl;
+		return 1;
+	}
+	
+	//Define a ordem da matriz especificada pelo usuário
+	std::string ordemStr = argv[1]; 
+	int ordem;
+	try {
+		ordem = std::stoi(ordemStr);
+	}
+	catch(std::invalid_argument& e){
+		std::cerr << "Primeiro parâmetro deve ser um inteiro!" << std::endl;
+		std::cerr << e.what();
+	}
+
+	if(ordem < 4 || ordem > 2048){
+		std::cerr << "Primeiro parâmetro deve ser uma potência de 2 entre 4 e 2048!" << std::endl;
+		return 1;
+	}
+	int ordemCheck = ordem;
+	while(ordemCheck != 1){
+		if(ordemCheck % 2 == 1){
+			std::cerr << "Primeiro parâmetro deve ser uma potência de 2!" << std::endl;
+			return 1;
+		}
+		ordemCheck >>= 1;
+	}
+	
+	
+
+	std::string tipoExecucao = argv[2];
+	if(tipoExecucao != "S" && tipoExecucao != "C"){
+		std::cerr << "Segundo parâmetro incorreto!" << std::endl;
 		return 1;
 	}
 
-	std::string ordemStr = argv[1]; 
-	int ordem = std::stoi(ordemStr);
+	
 
 	//Abrindo arquivos de matrizes
 	std::ifstream arquivoMatrizA;
@@ -138,8 +181,8 @@ int main(int argc, char const *argv[]){
 
 	/*Criando ponteiro de função que pode tanto apontar para versão sequencial 
 	como para a versão concorrente do algoritmo de multiplicação de matrizes*/
-	void (*multiplicaMatrizes)(int**, int**, int**){nullptr};
-	if(argv[3] == "S"){
+	void (*multiplicaMatrizes)(int**, int**, int**, int){nullptr};
+	if(tipoExecucao == "S"){
 		multiplicaMatrizes = &multiplicaMatrizesSequencial;
 	}
 	else{
@@ -151,7 +194,7 @@ int main(int argc, char const *argv[]){
 	//================================================================================
 
 
-	multiplicaMatrizes(matrizes[0], matrizes[1], matrizResultado);
+	multiplicaMatrizes(matrizes[0], matrizes[1], matrizResultado, ordem);
 
 
 	//================================================================================
@@ -174,11 +217,11 @@ int main(int argc, char const *argv[]){
 	
 
 	//Criando arquivo com matriz resultante
-	/*try{
+	try{
 		criarArquivoMatrizResultante(matrizResultado, ordem, ordemStr);	
 	} catch(std::ios_base::failure& e){
 		std::cerr << e.what() << std::endl;
-	}*/
+	}
 
 	//Liberando espaço alocado dinâmicamente na memória
 	for(int i{0}; i < 2; ++i){
