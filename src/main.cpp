@@ -9,7 +9,7 @@ std::ifstream abrirArquivo(std::string nome){
 
 	//Se não foi possível abrir o arquivo
 	if(!arquivo){
-		std::cerr << "Erro ao abrir arquivo " + nome;
+		throw std::ios_base::failure("Erro ao abrir arquivo " + nome);
 	}
 	return arquivo;
 }
@@ -38,6 +38,7 @@ void adicionarResultadoTempo(std::string ordem, double tempo){
 		//Imprimindo resultado no terminal
 		std::cout << std::setprecision(6);
 		std::cout << "Resultado: " << tempo << std::endl;
+		throw std::ios_base::failure("Erro ao abrir arquivo " + nomeArquivoResultados);
 	}
 
 	//Adicionando resultado no fim do arquivo
@@ -66,7 +67,8 @@ void criarArquivoMatrizResultante(int** matrizResultado, int ordem, std::string 
 			}
 			std::cout << std::endl;
 		}
-		
+
+		throw std::ios_base::failure("Erro ao abrir arquivo " + nomeArquivoResultados);
 	}
 
 	//Escrevendo matriz no arquivo
@@ -96,8 +98,16 @@ int main(int argc, char const *argv[]){
 	int ordem = std::stoi(ordemStr);
 
 	//Abrindo arquivos de matrizes
-	std::ifstream arquivoMatrizA = abrirArquivo("Matrizes/A" + ordemStr + "x" + ordemStr + ".txt");
-	std::ifstream arquivoMatrizB = abrirArquivo("Matrizes/B" + ordemStr + "x" + ordemStr + ".txt");
+	std::ifstream arquivoMatrizA;
+	std::ifstream arquivoMatrizB;
+	try{
+		arquivoMatrizA = abrirArquivo("Matrizes/A" + ordemStr + "x" + ordemStr + ".txt");
+		arquivoMatrizB = abrirArquivo("Matrizes/B" + ordemStr + "x" + ordemStr + ".txt");	
+	} catch(std::ios_base::failure& e){
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	
 
 	//Criando array de matrizes alocadas dinâmicamente
 	int*** matrizes = new int**[2];
@@ -155,10 +165,20 @@ int main(int argc, char const *argv[]){
 	double tempo = std::chrono::duration<double, std::milli>(diff).count();
 
 	//Acrescentando resultado de tempo em um arquivo csv
-	adicionarResultadoTempo(ordemStr, tempo);
+	try{
+		adicionarResultadoTempo(ordemStr, tempo);	
+	} catch(std::ios_base::failure& e) {
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	
 
 	//Criando arquivo com matriz resultante
-	//criarArquivoMatrizResultante(matrizResultado, ordem, ordemStr);
+	/*try{
+		criarArquivoMatrizResultante(matrizResultado, ordem, ordemStr);	
+	} catch(std::ios_base::failure& e){
+		std::cerr << e.what() << std::endl;
+	}*/
 
 	//Liberando espaço alocado dinâmicamente na memória
 	for(int i{0}; i < 2; ++i){
