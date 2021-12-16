@@ -2,6 +2,7 @@
 #include <chrono>
 #include <fstream>
 #include <iomanip>
+#include <thread>
 
 
 std::ifstream abrirArquivo(std::string nome){
@@ -24,10 +25,15 @@ void lerMatriz(int** matriz, int ordem, std::ifstream& arquivo){
 	arquivo.close();
 }
 
-void adicionarResultadoTempo(std::string ordem, double tempo){
+void adicionarResultadoTempo(std::string ordem, double tempo, std::string tipoExecucao){
 
 	//Abrindo aquivo dos resultados de tempo
-	std::string nomeArquivoResultados = "resultados/" + ordem + "x" + ordem + "_resultados" + ".csv";
+	std::string nomeArquivoResultados;
+	if(tipoExecucao == "S"){
+		nomeArquivoResultados = "resultados/S_" + ordem + "x" + ordem + "_resultados" + ".csv";
+	}else{
+        nomeArquivoResultados = "resultados/C_" + ordem + "x" + ordem + "_resultados" + ".csv";
+    }
 	std::ofstream arquivoCsv(nomeArquivoResultados, std::ios_base::app);
 
 	//Se não foi possível abrir o arquivo
@@ -94,8 +100,27 @@ void multiplicaMatrizesSequencial(int** matrizA, int** matrizB, int** matrizResu
 	}
 }
 
-void multiplicaMatrizesConcorrente(int** matrizA, int** matrizB, int** matrizResultado, int ordem){
+void calculaLinha(int* linhaMatrizA, int numLinha, int** matrizB, int** matrizResultado, int ordem){
+	for(int i{0}; i < ordem; ++i){
+		int soma = 0;
+		for(int j{0}; j < ordem; ++j) {
+			soma += linhaMatrizA[j] * matrizB[j][i];
+		}
+		matrizResultado[numLinha][i] = soma;
+    }
+}
 
+void multiplicaMatrizesConcorrente(int** matrizA, int** matrizB, int** matrizResultado, int ordem){
+	std::thread threads[ordem];
+	for(int i{0}; i < ordem; ++i){
+		//Instancia e inicia as threads para calcular as linhas da matriz produto
+		threads[i] = std::thread(calculaLinha, matrizA[i], i, matrizB, matrizResultado, ordem);
+	}
+
+	//Espera as threads finalizarem
+	for(int i{0}; i < ordem; ++i){
+		threads[i].join();
+	}
 }
 
 
@@ -129,16 +154,12 @@ int main(int argc, char const *argv[]){
 		}
 		ordemCheck >>= 1;
 	}
-	
-	
 
 	std::string tipoExecucao = argv[2];
 	if(tipoExecucao != "S" && tipoExecucao != "C"){
 		std::cerr << "Segundo parâmetro incorreto!" << std::endl;
 		return 1;
 	}
-
-	
 
 	//Abrindo arquivos de matrizes
 	std::ifstream arquivoMatrizA;
@@ -209,7 +230,7 @@ int main(int argc, char const *argv[]){
 
 	//Acrescentando resultado de tempo em um arquivo csv
 	try{
-		adicionarResultadoTempo(ordemStr, tempo);	
+		adicionarResultadoTempo(ordemStr, tempo, tipoExecucao);	
 	} catch(std::ios_base::failure& e) {
 		std::cerr << e.what() << std::endl;
 		return 1;
