@@ -46,3 +46,6 @@ Por fim, para apagar o arquivo executável, digite o comando:
 ```bash
 $ make clean
 ```
+
+# Autoria
+Programa desenvolvido por **Arturo Fonseca de Souza** e **Diego Filgueiras Balderrama**.
