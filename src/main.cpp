@@ -58,7 +58,7 @@ void adicionarResultadoTempo(std::string ordem, double tempo, std::string tipoEx
 void criarArquivoMatrizResultante(int** matrizResultado, int ordem, std::string ordemStr){
 	
 	//Abrindo aquivo dos resultados de tempo
-	std::string nomeArquivoResultados = "matrizes_resultantes/" + ordemStr + "x" + ordemStr + ".txt";
+	std::string nomeArquivoResultados = "matrizes_resultantes/C" + ordemStr + "x" + ordemStr + ".txt";
 	std::ofstream arquivoCsv(nomeArquivoResultados);
 
 	//Se não foi possível abrir o arquivo
