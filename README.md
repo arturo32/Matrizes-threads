@@ -4,7 +4,7 @@
 
 Trabalho prático realizado para a primeira unidade da disciplina de Programação Concorrente (DIM0124), ministrada pelo Prof. Dr. Everton Ranielly de Sousa Cavalcante, do curso do BTI da UFRN. 2021.2.
 
-Consiste em implementar a solução sequencial e concorrente do algoritmo de multiplicação de matrizes, executá-las com diferentes dimensões de matrizes e comparar seus respectivos desempenhos ao final dos testes.
+Consiste em implementar a solução sequencial e concorrente do algoritmo de multiplicação de matrizes, executá-las com diferentes dimensões de matrizes e comparar seus respectivos desempenhos ao final dos testes. Para mais detalhes, confira o [relatório](https://github.com/arturo32/Matrizes-threads/blob/main/docs/Trabalho%20I%20-%20Relat%C3%B3rio.pdf) do trabalho.
 
 ## Instruções
 
@@ -48,4 +48,4 @@ $ make clean
 ```
 
 # Autoria
-Programa desenvolvido por **Arturo Fonseca de Souza** e **Diego Filgueiras Balderrama**.
+Projeto desenvolvido por [**Arturo Fonseca**](https://github.com/arturo32) e [**Diego Filgueiras**](https://github.com/diegofilbal).
